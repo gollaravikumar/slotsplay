@@ -14,7 +14,7 @@ import { Search, MapPin, ArrowRight, Star, Shield, Zap, Clock } from 'lucide-rea
 import { useQueries } from '@tanstack/react-query';
 import { useSports, useVenueList } from '@/hooks/useVenue';
 import { formatDateLocal, getVenueSlots } from '@/lib/venue';
-import type { Venue } from '@/types';
+import type { VenueSummary } from '@/types';
 
 const HOW_IT_WORKS = [
   { step: '01', icon: Search, title: 'Find a turf', body: 'Search by sport, city, or distance. See real-time availability before you commit.' },
@@ -58,14 +58,14 @@ export default function HomePage() {
   const { data: sports = [] } = useSports();
   const { data: venueData, isLoading: isLoadingVenues, error: venuesError } = useVenueList({
     page: 1,
-    limit: 8,
+    limit: 4,
     sortBy: 'rating',
   });
   const venues = venueData?.data ?? [];
   const today = new Date();
   const todayKey = formatDateLocal(today);
   const slotQueries = useQueries({
-    queries: venues.map((venue: Venue) => ({
+    queries: venues.map((venue: VenueSummary) => ({
       queryKey: ['venue-slots', venue.id, todayKey],
       queryFn: () => getVenueSlots(venue.id, today),
       staleTime: 30_000,

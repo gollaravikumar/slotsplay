@@ -59,7 +59,8 @@ function ManageSlotsContent() {
 
   const { data: venues = [], isLoading: isVenuesLoading } = useOwnerVenues();
 
-  const [venueId, setVenueId] = useState(venueIdFromQuery);
+  const [selectedVenueId, setVenueId] = useState(venueIdFromQuery);
+  const venueId = selectedVenueId || venueIdFromQuery || venues[0]?.id || '';
   const [activeTab, setActiveTab] = useState<'schedule' | 'generate'>('schedule');
 
   // Generator form state
@@ -73,15 +74,6 @@ function ManageSlotsContent() {
 
   // Schedule viewer state
   const [selectedDateStr, setSelectedDateStr] = useState(getTodayLocalDate());
-
-  // Set default venueId if none selected yet and venues load
-  useEffect(() => {
-    if (!venueId && venueIdFromQuery) {
-      setVenueId(venueIdFromQuery);
-    } else if (!venueId && venues.length > 0) {
-      setVenueId(venues[0].id);
-    }
-  }, [venueId, venueIdFromQuery, venues]);
 
   const selectedVenue = venues.find((v: any) => v.id === venueId);
 

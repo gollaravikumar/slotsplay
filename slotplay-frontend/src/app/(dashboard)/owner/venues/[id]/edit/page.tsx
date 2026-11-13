@@ -7,8 +7,8 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -43,8 +43,8 @@ interface FormState {
   amenityIds: number[];
 }
 
-export default function EditVenuePage({ params }: { params: { id: string } }) {
-  const venueId = params.id;
+export default function EditVenuePage() {
+  const { id: venueId } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -66,11 +66,12 @@ export default function EditVenuePage({ params }: { params: { id: string } }) {
     amenityIds: [],
   });
 
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitialized = useRef(false);
 
   // Pre-populate form once venue data loads
   useEffect(() => {
-    if (venue && !isInitialized) {
+    if (venue && !isInitialized.current) {
+      // The form is initialized only after its asynchronous venue data arrives.
       setForm({
         name: venue.name || '',
         description: venue.description || '',
@@ -84,9 +85,9 @@ export default function EditVenuePage({ params }: { params: { id: string } }) {
         sportIds: Array.isArray(venue.sports) ? venue.sports.map((s: any) => s.id) : [],
         amenityIds: Array.isArray(venue.amenities) ? venue.amenities.map((a: any) => a.id) : [],
       });
-      setIsInitialized(true);
+      isInitialized.current = true;
     }
-  }, [venue, isInitialized]);
+  }, [venue]);
 
   const updateMutation = useMutation({
     mutationFn: async () => {

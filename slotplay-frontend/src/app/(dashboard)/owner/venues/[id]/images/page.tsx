@@ -8,6 +8,7 @@
 
 import { useState, useCallback } from 'react';
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -29,6 +30,12 @@ interface VenueImage {
   sortOrder: number;
 }
 
+function validateImageFile(file: File): string | null {
+  if (!ACCEPTED.includes(file.type)) return 'Only JPEG, PNG, and WebP images are allowed.';
+  if (file.size > MAX_MB * 1024 * 1024) return `File must be under ${MAX_MB}MB.`;
+  return null;
+}
+
 function useVenueImages(venueId: string) {
   return useQuery({
     queryKey: ['venue-images', venueId],
@@ -41,8 +48,8 @@ function useVenueImages(venueId: string) {
   });
 }
 
-export default function VenueImagesPage({ params }: { params: { id: string } }) {
-  const venueId = params.id;
+export default function VenueImagesPage() {
+  const { id: venueId } = useParams<{ id: string }>();
   const qc = useQueryClient();
   const { data: images = [], isLoading } = useVenueImages(venueId);
 
@@ -53,14 +60,7 @@ export default function VenueImagesPage({ params }: { params: { id: string } }) 
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['venue-images', venueId] });
 
-  // ── File validation ───────────────────────────────────────────────────────
-  function validateFile(file: File): string | null {
-    if (!ACCEPTED.includes(file.type)) return 'Only JPEG, PNG, and WebP images are allowed.';
-    if (file.size > MAX_MB * 1024 * 1024) return `File must be under ${MAX_MB}MB.`;
-    return null;
-  }
-
-  function addFiles(files: FileList | File[]) {
+  const addFiles = useCallback((files: FileList | File[]) => {
     const arr = Array.from(files);
     const remaining = MAX_IMAGES - images.length - previews.length;
     if (remaining <= 0) { toast.error(`Max ${MAX_IMAGES} images per venue`); return; }
@@ -69,20 +69,20 @@ export default function VenueImagesPage({ params }: { params: { id: string } }) 
     const errors: string[] = [];
 
     toAdd.forEach(file => {
-      const err = validateFile(file);
+      const err = validateImageFile(file);
       if (err) { errors.push(`${file.name}: ${err}`); return; }
       setPreviews(p => [...p, { file, url: URL.createObjectURL(file) }]);
     });
 
     if (errors.length) toast.error(errors[0]);
-  }
+  }, [images.length, previews.length]);
 
   // ── Drag & drop ───────────────────────────────────────────────────────────
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
-  }, [images.length, previews.length]);
+  }, [addFiles]);
 
   // ── Upload ────────────────────────────────────────────────────────────────
   async function handleUpload() {

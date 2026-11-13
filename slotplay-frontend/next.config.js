@@ -1,10 +1,35 @@
 /** @type {import('next').NextConfig} */
+const configuredBackendUrl =
+  process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+
+if (process.env.NODE_ENV === 'production' && !configuredBackendUrl) {
+  throw new Error(
+    'Set BACKEND_URL to the deployed HTTPS API before building for production.',
+  );
+}
+
 const rawBackendUrl =
-  process.env.BACKEND_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
+  configuredBackendUrl ||
   'http://localhost:4000';
 
-const backendUrl = rawBackendUrl.trim().replace(/\/+$/, '');
+const parsedBackendUrl = new URL(
+  rawBackendUrl.trim().startsWith('http')
+    ? rawBackendUrl.trim()
+    : `https://${rawBackendUrl.trim()}`,
+);
+
+if (!['http:', 'https:'].includes(parsedBackendUrl.protocol)) {
+  throw new Error('The backend URL must use HTTP or HTTPS.');
+}
+
+if (
+  process.env.NODE_ENV === 'production' &&
+  parsedBackendUrl.protocol !== 'https:'
+) {
+  throw new Error('The production backend URL must use HTTPS.');
+}
+
+const backendUrl = parsedBackendUrl.toString().replace(/\/+$/, '');
 
 // Safely parse backend domain for next/image remotePatterns
 const remotePatterns = [
@@ -29,22 +54,20 @@ const remotePatterns = [
   },
 ];
 
-if (backendUrl && !backendUrl.includes('localhost') && !backendUrl.includes('127.0.0.1')) {
-  try {
-    const parsed = new URL(backendUrl.startsWith('http') ? backendUrl : `https://${backendUrl}`);
-    remotePatterns.push({
-      protocol: (parsed.protocol.replace(':', '') || 'https'),
-      hostname: parsed.hostname,
-      port: parsed.port || undefined,
-      pathname: '/uploads/**',
-    });
-  } catch {
-    // If backendUrl is not a parseable URL, ignore safely
-  }
+if (!['localhost', '127.0.0.1'].includes(parsedBackendUrl.hostname)) {
+  remotePatterns.push({
+    protocol: parsedBackendUrl.protocol.replace(':', ''),
+    hostname: parsedBackendUrl.hostname,
+    port: parsedBackendUrl.port || undefined,
+    pathname: '/uploads/**',
+  });
 }
 
 const nextConfig = {
   reactStrictMode: true,
+  turbopack: {
+    root: __dirname,
+  },
 
   images: {
     // Allow inline SVG data URIs used as placeholders when venues have no image

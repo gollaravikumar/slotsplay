@@ -8,7 +8,7 @@ This guide walks you through deploying the complete SlotPlay application to prod
 
 | Component | Technology | Target Hosting | Why? |
 |---|---|---|---|
-| **Frontend** | Next.js 14 (App Router) + Tailwind CSS | **Vercel** | Native Next.js edge caching, automatic SSL, preview URLs, instant builds |
+| **Frontend** | Next.js 16 (App Router) + Tailwind CSS | **Vercel** | Native Next.js caching, automatic SSL, preview URLs, instant builds |
 | **Backend** | Java 21 LTS + Spring Boot 3.3.5 | **Render** or **Railway** (Docker) | Continuous JVM runtime, Flyway database migrations, connection pooling |
 | **Database** | PostgreSQL Serverless | **Neon** | Serverless PostgreSQL with SSL and automatic backups |
 | **Proxy & Rewrites** | Next.js Reverse Proxy (`next.config.js`) | **Vercel** | Proxies `/api/*` to backend to ensure **same-origin session cookies** (`slotplay.sid`) |
@@ -82,7 +82,7 @@ Choose either **Render** (free tier available) or **Railway**.
 4. Open **Environment Variables** and add:
    | Key | Value | Description |
    |---|---|---|
-   | `BACKEND_URL` | `https://slotplay-backend.onrender.com` | Target URL for Next.js server-side rewrites and edge auth middleware |
+   | `BACKEND_URL` | `https://slotplay-backend.onrender.com` | Target URL for Next.js server-side rewrites and the auth proxy |
    | `NEXT_PUBLIC_API_URL` | *(leave empty or set to same URL)* | Client requests default to relative `/api/*`, automatically using the proxy |
 5. Click **Deploy**.
 6. Vercel will run `npm install`, compile TypeScript, run ESLint, and deploy your site to `https://slotplay.vercel.app`!
@@ -98,8 +98,8 @@ By configuring `BACKEND_URL` in Vercel:
 2. **Session Cookies (`slotplay.sid`):**
    - The session cookie is issued on `slotplay.vercel.app`.
    - Modern browsers (Chrome, Safari, iOS, Firefox) will **never block** it because it is first-party/same-origin.
-3. **Edge Middleware (`middleware.ts`):**
-   - When a user accesses protected pages (`/dashboard`, `/bookings`, `/owner`, `/admin`), Next.js Edge middleware intercepts the request.
+3. **Next.js Proxy (`src/proxy.ts`):**
+   - When a user accesses protected pages (`/dashboard`, `/bookings`, `/owner`, `/admin`), the proxy intercepts the request.
    - It forwards `slotplay.sid` to `${BACKEND_URL}/api/auth/me`.
    - If valid, access is granted with 0 roundtrips visible to the client.
 

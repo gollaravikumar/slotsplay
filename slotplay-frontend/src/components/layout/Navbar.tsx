@@ -7,11 +7,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Menu, X, LogOut, User, LayoutDashboard,
-  CheckSquare, ChevronDown, Bell,
+  CheckSquare, ChevronDown,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { NotificationBell } from './NotificationBell';
@@ -24,11 +24,11 @@ const NAV_LINKS = [
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const transparentHome = pathname === '/' && !scrolled;
 
   // Shadow on scroll
   useEffect(() => {
@@ -48,8 +48,23 @@ export function Navbar() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Close mobile on route change
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
+  useEffect(() => {
+    // Close transient navigation UI after every route change, including browser history.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen && !dropdownOpen) return;
+    const closeMenus = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('keydown', closeMenus);
+    return () => document.removeEventListener('keydown', closeMenus);
+  }, [mobileOpen, dropdownOpen, setMobileOpen]);
 
   const isOwner = user?.roleId === 2;
 
@@ -57,9 +72,9 @@ export function Navbar() {
     <>
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ${
-          scrolled
-            ? 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-md shadow-sm border-b border-gray-200/80 dark:border-gray-800/80'
-            : 'bg-transparent'
+          transparentHome
+            ? 'bg-gray-950/80 backdrop-blur-md'
+            : 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-md shadow-sm border-b border-gray-200/80 dark:border-gray-800/80'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
@@ -69,7 +84,7 @@ export function Navbar() {
             <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
               <span className="text-white font-black text-sm tracking-tight">SP</span>
             </div>
-            <span className="font-black text-gray-900 dark:text-white tracking-tight text-lg">
+            <span className={`font-black tracking-tight text-lg ${transparentHome ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
               Slot<span className="text-brand-600">Play</span>
             </span>
           </Link>
@@ -82,8 +97,12 @@ export function Navbar() {
                 href={href}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   pathname === href
-                    ? 'text-brand-600 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? transparentHome
+                      ? 'text-white bg-white/10'
+                      : 'text-brand-600 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400'
+                    : transparentHome
+                      ? 'text-gray-200 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
                 {label}
@@ -95,12 +114,16 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3 ml-auto">
             {isAuthenticated ? (
               <>
-                <NotificationBell />
+                <NotificationBell inverted={transparentHome} />
 
                 {/* My Bookings */}
                 <Link
                   href="/bookings"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    transparentHome
+                      ? 'text-gray-200 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
                 >
                   <CheckSquare size={16} />
                   Bookings
@@ -109,20 +132,27 @@ export function Navbar() {
                 {/* Avatar dropdown */}
                 <div className="relative" ref={dropdownRef}>
                   <button
+                    type="button"
+                    aria-expanded={dropdownOpen}
+                    aria-controls="account-menu"
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-900 transition-colors"
+                    className={`flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg border transition-colors ${
+                      transparentHome
+                        ? 'border-white/20 hover:border-white/40 bg-white/10'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-900'
+                    }`}
                   >
                     <div className="w-7 h-7 rounded-full bg-brand-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                       {user?.name?.[0]?.toUpperCase() ?? 'U'}
                     </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[100px] truncate">
+                    <span className={`text-sm font-medium max-w-[100px] truncate ${transparentHome ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                       {user?.name?.split(' ')[0]}
                     </span>
-                    <ChevronDown size={14} className={`text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`${transparentHome ? 'text-gray-200' : 'text-gray-400'} transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {dropdownOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl py-1.5 animate-fade-in">
+                    <div id="account-menu" className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl py-1.5 animate-fade-in">
                       <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 mb-1">
                         <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
@@ -158,13 +188,21 @@ export function Navbar() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className={`px-4 py-2 text-sm font-semibold transition-colors ${
+                    transparentHome
+                      ? 'text-white hover:text-brand-300'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400'
+                  }`}
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+                  className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors shadow-sm ${
+                    transparentHome
+                      ? 'bg-white text-brand-700 hover:bg-brand-50'
+                      : 'bg-brand-600 hover:bg-brand-700 text-white'
+                  }`}
                 >
                   Join Free
                 </Link>
@@ -174,8 +212,16 @@ export function Navbar() {
 
           {/* Mobile hamburger */}
           <button
+            type="button"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 ml-auto"
+            className={`md:hidden p-2 rounded-lg ml-auto transition-colors ${
+              transparentHome
+                ? 'text-white hover:bg-white/10'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -187,7 +233,7 @@ export function Navbar() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-x-0 top-16 z-40 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 shadow-xl animate-slide-up">
+        <nav id="mobile-menu" aria-label="Mobile navigation" className="md:hidden fixed inset-x-0 top-16 z-40 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 shadow-xl animate-slide-up">
           <div className="px-4 py-4 space-y-1">
             {NAV_LINKS.map(({ label, href }) => (
               <Link
@@ -230,7 +276,7 @@ export function Navbar() {
               </div>
             )}
           </div>
-        </div>
+        </nav>
       )}
     </>
   );

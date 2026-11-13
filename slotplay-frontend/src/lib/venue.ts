@@ -5,7 +5,7 @@
  */
 
 import api from './api';
-import { ApiSuccess, Venue, Review, Sport } from '@/types';
+import { ApiSuccess, Venue, VenueSummary, Review, Sport } from '@/types';
 
 export interface ListVenuesParams {
   page?: number;
@@ -39,7 +39,7 @@ export interface ReviewSubmit {
 
 export async function listVenues(params: ListVenuesParams) {
   const { data } = await api.get<ApiSuccess<{
-    data: Venue[];
+    data: VenueSummary[];
     pagination: { page: number; limit: number; total: number; pages: number };
   }>>('/api/venues', { params });
   return data.data;

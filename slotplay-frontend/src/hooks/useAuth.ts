@@ -50,7 +50,13 @@ export function useAuth() {
       setUser(user);
       const displayName = user.name ? user.name.split(' ')[0] : 'there';
       toast.success(`Welcome back, ${displayName}!`);
-      router.push(returnUrl ?? '/dashboard');
+      const destination =
+        returnUrl?.startsWith('/') &&
+        !returnUrl.startsWith('//') &&
+        !returnUrl.includes('\\')
+          ? returnUrl
+          : '/dashboard';
+      router.push(destination);
     },
     [setUser, router],
   );

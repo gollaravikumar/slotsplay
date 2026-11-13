@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useBookingDetail, useCancelBooking, useVerifyPayment } from '@/hooks/useBooking';
 import { Check, Clock, XCircle, MapPin, Calendar, Download, ChevronLeft, ShieldCheck } from 'lucide-react';
@@ -18,9 +19,10 @@ const STATUS_UI = {
   rejected:        { label: 'Payment Rejected',  Icon: XCircle, bg: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',         color: 'text-red-700 dark:text-red-400' },
 } as const;
 
-export default function BookingDetailPage({ params }: { params: { id: string } }) {
+export default function BookingDetailPage() {
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { data: booking, isLoading } = useBookingDetail(params.id);
+  const { data: booking, isLoading } = useBookingDetail(id);
   const cancel = useCancelBooking();
   const verify = useVerifyPayment();
   const canvasRef = useRef<HTMLCanvasElement>(null);

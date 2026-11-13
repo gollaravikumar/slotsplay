@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, type InputHTMLAttributes } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSports, useAmenities } from '@/hooks/useVenue';
 import { useMutation } from '@tanstack/react-query';
@@ -34,6 +34,40 @@ const EMPTY: FormData = {
   sportIds: [], amenityIds: [],
   pricePerHour: '',
 };
+
+interface FormFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: InputHTMLAttributes<HTMLInputElement>['type'];
+  required?: boolean;
+}
+
+function FormField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = 'text',
+  required = false,
+}: FormFieldProps) {
+  return (
+    <div>
+      <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
+        {label}{required && ' *'}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+      />
+    </div>
+  );
+}
 
 export default function NewVenuePage() {
   const router = useRouter();
@@ -73,20 +107,6 @@ export default function NewVenuePage() {
     return true;
   };
 
-  const F = ({ label, value, onChange, placeholder, type = 'text', required = false }: any) => (
-    <div>
-      <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{label}{required && ' *'}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
-      />
-    </div>
-  );
-
   return (
     <div className="max-w-xl">
       <div className="flex items-center gap-2 mb-7">
@@ -118,7 +138,7 @@ export default function NewVenuePage() {
         {/* Step 0: Basic info */}
         {step === 0 && (
           <div className="space-y-4">
-            <F label="Venue name" value={form.name} onChange={(v: string) => set('name', v)} placeholder="e.g. Green Field Cricket Turf" required />
+            <FormField label="Venue name" value={form.name} onChange={(v) => set('name', v)} placeholder="e.g. Green Field Cricket Turf" required />
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Description</label>
               <textarea
@@ -135,15 +155,15 @@ export default function NewVenuePage() {
         {/* Step 1: Location */}
         {step === 1 && (
           <div className="space-y-4">
-            <F label="Address" value={form.address} onChange={(v: string) => set('address', v)} placeholder="Street address" required />
+            <FormField label="Address" value={form.address} onChange={(v) => set('address', v)} placeholder="Street address" required />
             <div className="grid grid-cols-2 gap-4">
-              <F label="City" value={form.city} onChange={(v: string) => set('city', v)} placeholder="Hyderabad" required />
-              <F label="State" value={form.state} onChange={(v: string) => set('state', v)} placeholder="Telangana" required />
+              <FormField label="City" value={form.city} onChange={(v) => set('city', v)} placeholder="Hyderabad" required />
+              <FormField label="State" value={form.state} onChange={(v) => set('state', v)} placeholder="Telangana" required />
             </div>
-            <F label="Pincode" value={form.pincode} onChange={(v: string) => set('pincode', v)} placeholder="500001" required />
+            <FormField label="Pincode" value={form.pincode} onChange={(v) => set('pincode', v)} placeholder="500001" required />
             <div className="grid grid-cols-2 gap-4">
-              <F label="Latitude" value={form.latitude} onChange={(v: string) => set('latitude', v)} placeholder="17.3850" type="number" required />
-              <F label="Longitude" value={form.longitude} onChange={(v: string) => set('longitude', v)} placeholder="78.4867" type="number" required />
+              <FormField label="Latitude" value={form.latitude} onChange={(v) => set('latitude', v)} placeholder="17.3850" type="number" required />
+              <FormField label="Longitude" value={form.longitude} onChange={(v) => set('longitude', v)} placeholder="78.4867" type="number" required />
             </div>
             <p className="text-xs text-gray-400 flex items-center gap-1">
               <MapPin size={11} /> Open Google Maps, right-click your venue location → copy coordinates
@@ -215,7 +235,7 @@ export default function NewVenuePage() {
                 />
               </div>
             </div>
-            <F label="Contact phone" value={form.phone} onChange={(v: string) => set('phone', v)} placeholder="10-digit mobile" required />
+            <FormField label="Contact phone" value={form.phone} onChange={(v) => set('phone', v)} placeholder="10-digit mobile" required />
 
             {/* Summary card */}
             <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm space-y-2">

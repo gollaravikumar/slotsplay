@@ -72,9 +72,6 @@ export function AvailabilityCalendar({ venueId, pricePerHour, ownerUpiId }: Avai
   const [selectedDate, setSelectedDate] = useState<Date>(days[0]);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
-  // Reset slot selection when date changes
-  useEffect(() => { setSelectedSlotId(null); }, [selectedDate]);
-
   // ── Slots query (refetches every 60 s for live availability) ─
   const { data: slots = [], isLoading, error, refetch, isFetching } = useVenueSlots(venueId, selectedDate);
 
@@ -157,7 +154,10 @@ export function AvailabilityCalendar({ venueId, pricePerHour, ownerUpiId }: Avai
             return (
               <button
                 key={dateKey(day)}
-                onClick={() => setSelectedDate(day)}
+                onClick={() => {
+                  setSelectedDate(day);
+                  setSelectedSlotId(null);
+                }}
                 className={`flex-shrink-0 flex flex-col items-center w-12 py-2.5 rounded-xl border transition-all ${
                   isSelected
                     ? 'bg-brand-600 border-brand-600 text-white'

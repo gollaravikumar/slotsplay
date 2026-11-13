@@ -6,7 +6,7 @@
 
 [![Java 21](https://img.shields.io/badge/Java-21%20LTS-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
 [![Spring Boot 3.3.5](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?style=flat&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Next.js 14](https://img.shields.io/badge/Next.js-14%20(App%20Router)-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16%20(App%20Router)-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-4169E1?style=flat&logo=postgresql&logoColor=white)](https://neon.tech)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
@@ -55,7 +55,7 @@ Venue owners gain automated slot scheduling, revenue tracking, and payment verif
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│             SlotPlay Frontend (Next.js 14)             │
+│             SlotPlay Frontend (Next.js 16)             │
 │   React 18 · TypeScript · Tailwind CSS · TanStack Query │
 │   Framer Motion · Recharts · Lucide Icons · Zustand    │
 └──────────────────────────┬─────────────────────────────┘
@@ -76,7 +76,7 @@ Venue owners gain automated slot scheduling, revenue tracking, and payment verif
 
 | Layer | Technology | Key Capabilities |
 |---|---|---|
-| **Frontend** | **Next.js 14 (App Router)** | Server & Client Components, Route Groups (`(auth)`, `(main)`, `(dashboard)`), SEO metadata |
+| **Frontend** | **Next.js 16 (App Router)** | Server & Client Components, Route Groups (`(auth)`, `(main)`, `(dashboard)`), SEO metadata |
 | **UI & Styling** | **Tailwind CSS + Framer Motion** | Dark mode, responsive design, micro-animations, glassmorphism |
 | **State & Data** | **TanStack Query + Zustand** | Optimistic caching, auto-refetching, global auth state |
 | **Data Viz** | **Recharts** | Responsive AreaCharts, BarCharts, and Donut charts for financial metrics |
@@ -113,7 +113,7 @@ slotplay/
 │   ├── mvnw & mvnw.cmd                # Maven wrapper scripts
 │   └── README.md                      # Backend-specific guide
 │
-└── slotplay-frontend/                 # Next.js 14 App Router Frontend
+└── slotplay-frontend/                 # Next.js 16 App Router Frontend
     ├── public/                        # Static assets, branding, and icons
     └── src/
         ├── app/
@@ -142,7 +142,7 @@ slotplay/
 
 ### Prerequisites
 - **Java Development Kit (JDK):** Version 21 LTS installed (`java -version`)
-- **Node.js:** Version 20.x or higher (`node -v`) and npm 10+
+- **Node.js:** Version 20.9 or higher (`node -v`) and npm 10+
 - **PostgreSQL Database:** Neon Serverless PostgreSQL instance (or local PostgreSQL 15+)
 - **Resend Account:** API key for transactional emails (free tier available at resend.com)
 

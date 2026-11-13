@@ -60,6 +60,8 @@ export default function AdminReportsPage() {
   // Client hydration mount guard for Recharts
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    // Keep chart rendering client-only to avoid a server/client hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

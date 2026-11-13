@@ -76,6 +76,7 @@ export interface Venue {
   averageRating?: number | string;
   reviewCount?: number;
   distance?: string;
+  previewImage?: string;
   sports?: Sport[];
   images?: VenueImage[];
   amenities?: Amenity[];
@@ -84,6 +85,8 @@ export interface Venue {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type VenueSummary = Omit<Venue, 'ownerId'>;
 
 export interface Slot {
   id: string;

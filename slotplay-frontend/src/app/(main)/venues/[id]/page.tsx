@@ -9,6 +9,7 @@
 
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useVenueDetail } from '@/hooks/useVenue';
 import { ImageGallery } from '@/components/turf/ImageGallery';
 import { AmenitiesList } from '@/components/turf/AmenitiesList';
@@ -214,10 +215,12 @@ function TurfDetailContent({ id }: { id: string }) {
   );
 }
 
-export default function TurfDetailPage({ params }: { params: { id: string } }) {
+export default function TurfDetailPage() {
+  const { id } = useParams<{ id: string }>();
+
   return (
     <Suspense>
-      <TurfDetailContent id={params.id} />
+      <TurfDetailContent id={id} />
     </Suspense>
   );
 }

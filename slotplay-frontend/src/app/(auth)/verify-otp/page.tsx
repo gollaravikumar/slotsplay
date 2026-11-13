@@ -31,6 +31,8 @@ export default function VerifyOtpPage() {
 
   useEffect(() => {
     if (emailParam) {
+      // Sync the URL-provided address into editable local state and session storage.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmail(emailParam);
       try {
         sessionStorage.setItem('slotplay_verify_email', emailParam);

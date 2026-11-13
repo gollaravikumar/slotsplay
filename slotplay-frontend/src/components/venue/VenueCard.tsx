@@ -10,9 +10,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Star } from 'lucide-react';
+import type { VenueSummary } from '@/types';
 
 interface VenueCardProps {
-  venue: any;
+  venue: VenueSummary;
   listMode?: boolean;
 }
 
@@ -51,7 +52,7 @@ function VenueImage({
 export function VenueCard({ venue, listMode = false }: VenueCardProps) {
   // Use the first image url if available, else fall back to inline placeholder
   const img    = venue.images?.[0]?.url || venue.previewImage || PLACEHOLDER;
-  const rating = venue.averageRating ? parseFloat(venue.averageRating).toFixed(1) : null;
+  const rating = venue.averageRating ? Number(venue.averageRating).toFixed(1) : null;
 
   if (listMode) {
     return (

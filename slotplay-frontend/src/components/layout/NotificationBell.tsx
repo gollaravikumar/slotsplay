@@ -18,9 +18,13 @@ interface Notification {
   type: string;
   title: string;
   body: string;
-  isRead: boolean;
+  isRead?: boolean;
+  read?: boolean;
   createdAt: string;
 }
+
+const isRead = (notification: Notification) =>
+  notification.isRead ?? notification.read ?? false;
 
 const TYPE_DOT: Record<string, string> = {
   booking_confirmed: 'bg-green-500',
@@ -48,7 +52,7 @@ function useNotifications() {
   });
 }
 
-export function NotificationBell() {
+export function NotificationBell({ inverted = false }: { inverted?: boolean }) {
   const { isAuthenticated } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -60,7 +64,7 @@ export function NotificationBell() {
     : Array.isArray(data)
     ? data
     : [];
-  const unread = notifications.filter(n => !(n.isRead ?? (n as any).read)).length;
+  const unread = notifications.filter((notification) => !isRead(notification)).length;
 
   // Close on outside click
   useEffect(() => {
@@ -81,8 +85,15 @@ export function NotificationBell() {
   return (
     <div className="relative" ref={ref}>
       <button
+        type="button"
+        aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ''}`}
+        aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+        className={`relative p-2 rounded-lg transition-colors ${
+          inverted
+            ? 'text-gray-200 hover:bg-white/10 hover:text-white'
+            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300'
+        }`}
       >
         <Bell size={18} />
         {unread > 0 && (
@@ -124,7 +135,7 @@ export function NotificationBell() {
                 <div
                   key={n.id}
                   className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                    !(n.isRead ?? (n as any).read) ? 'bg-brand-50/50 dark:bg-brand-900/10' : ''
+                    !isRead(n) ? 'bg-brand-50/50 dark:bg-brand-900/10' : ''
                   }`}
                 >
                   <div className="flex items-start gap-2.5">

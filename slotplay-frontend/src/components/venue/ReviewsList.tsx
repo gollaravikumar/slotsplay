@@ -8,6 +8,7 @@ import { Review } from '@/types';
 import { Star, User } from 'lucide-react';
 import { useVenueReviews } from '@/hooks/useVenue';
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface ReviewsListProps {
   venueId: string;
@@ -57,11 +58,14 @@ export function ReviewsList({ venueId }: ReviewsListProps) {
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  {(review.user as any)?.avatarUrl ? (
-                    <img
-                      src={(review.user as any).avatarUrl}
-                      alt={(review.user as any)?.name}
-                      className="w-10 h-10 rounded-full"
+                  {review.user?.avatarUrl ? (
+                    <Image
+                      src={review.user.avatarUrl}
+                      alt={`${review.user.name ?? 'Player'} avatar`}
+                      width={40}
+                      height={40}
+                      sizes="40px"
+                      className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
                     <User size={20} className="text-green-600" />
@@ -69,7 +73,7 @@ export function ReviewsList({ venueId }: ReviewsListProps) {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    {(review.user as any)?.name || 'Anonymous'}
+                    {review.user?.name || 'Anonymous'}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(review.createdAt as string).toLocaleDateString()}

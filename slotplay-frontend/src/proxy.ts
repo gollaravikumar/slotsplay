@@ -1,5 +1,5 @@
 /**
- * middleware.ts  (Next.js route middleware — runs on the Edge)
+ * proxy.ts  (Next.js route proxy)
  *
  * Enforces authentication for protected route groups.
  * Redirects unauthenticated users to /login with the intended URL
@@ -25,7 +25,7 @@ const PROTECTED_PATHS = ['/dashboard', '/bookings', '/profile', '/payment'];
 const OWNER_PATHS = ['/owner'];
 const ADMIN_PATHS = ['/admin'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const needsAuth =
